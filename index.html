@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Recursive Functions</title>
+</head>
+
+<body>
+  <script>
+    document.write('<h1>Please see the console.</h1>')
+    console.log('How to return the first element in an array ?');
+    const array = [1, 2, 3, 4, 5, 6];
+    const head = ([x]) => x;
+    console.log('Input', array);
+    console.log('Output', head(array));
+    console.log();
+
+    console.log('Return all but the first element in an array?')
+    const tail = ([, ...array]) => array
+    console.log('Input', array);
+    console.log('Output', tail(array));
+    console.log();
+
+    console.log('Return if argument supplied is defined');
+    const def = x => typeof x !== 'undefined';
+    const defined = 'this is defined';
+    console.log(def(defined));
+    //console.log(def(doesntExist));
+    console.log();
+
+    console.log('Return if argument supplied is undefined');
+    const undef = x => !def(x);
+    const defined1 = 'this is defined';
+    //console.log(undef(defined1));
+    //console.log(undef(doesntExist));
+    console.log();
+
+    console.log('Return a copy of an array without using Array.slice()')
+    const copy = array => [...array];
+    let copied = copy(array);
+    copied.push(6);
+    console.log(array);
+    console.log(copied);
+    console.log()
+
+    console.log('Length of an array');
+    const length = ([x, ...xs], len = 0) => def(x) ? length(xs, len + 1) : len;
+    console.log(length(array));
+    console.log();
+
+    console.log('Reverse an array');
+    const reverse = ([x, ...xs]) => def(x) ? [...reverse(xs), x] : [];
+    console.log(reverse(array));
+    console.log();
+
+    console.log('Returns an array that contains the first n items of the given array');
+    const first = ([x, ...xs], n = 1) => def(x) && n ? [x, ...first(xs, n - 1)] : [];
+    console.log('Input', array);
+    console.log('Output', first(array, 3));
+    console.log();
+
+    console.log('Returns an array that contains the last n items of the given array');
+    const last = (xs, n = 1) => reverse(first(reverse(xs), n));
+    console.log('Input', array);
+    console.log('Output', last(array, 3));
+    console.log();
+
+    console.log('Return a new array with value inserted at given index');
+    const slice = ([x, ...xs], i, y, curr = 0) => def(x) ? curr === i ? [y, x, ...slice(xs, i, y, curr + 1)] : [x, ...
+      slice(xs, i, y, curr + 1)
+    ] : []
+    const array1 = [1, 2, 4, 5]
+    console.log(array1);
+    console.log(slice(array1, 2, 3));
+    console.log();
+
+    console.log('Returns if value supplied is an array');
+    const isArray = x => Array.isArray(x);
+    console.log(isArray(array));
+    console.log();
+
+    console.log('Combines nested arrays into a single array');
+    const flatten = ([x, ...xs]) => def(x) ? isArray(x) ? [...flatten(x), ...flatten(xs)] : [x, ...flatten(xs)] : [];
+    const array2 = [1, 2, 3];
+    const array3 = [4, [5, [6]]];
+    console.log('input', array2, array3);
+    console.log('output', flatten([array2, array3]));
+    console.log();
+
+    console.log('ES6 map function');
+    const map = ([x, ...xs], fn) => {
+      if (undef(x)) return []
+      return [fn(x), ...map(xs, fn)]
+    }
+    // Simplified map form above
+    const map1 = ([x, ...xs], fn) => def(x) ? [fn(x), ...map(xs, fn)] : []
+    const double = x => x * 2;
+    console.log('Input', array);
+    console.log('Output', map(array, double));
+    console.log();
+
+    console.log('Filter function');
+    const filter = ([x, ...xs], fn) => {
+      if (undef(x)) return []
+      if (fn(x)) {
+        return [x, ...filter(xs, fn)]
+      } else {
+        return [...filter(xs, fn)]
+      }
+    }
+    const even = x => x % 2 === 0;
+    const odd = x => !even(x);
+    console.log('Even', filter(array, even));
+    console.log('Odd', filter(array, odd));
+    console.log();
+
+    console.log('Reject Function (Returns an array that does not pass the filter function)');
+    const reject = ([x, ...xs], fn) => {
+      if (undef(x)) return []
+      if (!fn(x)) {
+        return [x, ...reject(xs, fn)]
+      } else {
+        return [...reject(xs, fn)]
+      }
+    }
+    console.log(reject(array, even));
+    console.log();
+
+    console.log('Splits an array into two arrays. One whose items pass a filter and one whose items fail');
+    const partition = (xs, fn) => [filter(xs, fn), reject(xs, fn)];
+    console.log(partition(array, even));
+    console.log();
+
+    console.log('Reduce Function');
+    const reduce = ([x, ...xs], fn, memo, i) => {
+      if (undef(x)) return memo
+      return reduce(xs, fn, fn(memo, x, i), i + 1)
+    }
+    // Reduce simplified
+    const reduceSimplified = ([x, ...xs], fn, memo, i = 0) => def(x) ?
+      reduce(xs, fn, fn(memo, x, i), i + 1) : memo;
+
+    const sum = (memo, x) => memo + x;
+    console.log('Sum', reduce([1, 2, 3, ], sum, 0));
+
+    const flatten1 = (memo, x) => memo.concat(x)
+    console.log('Flatten', reduce([4, 5, 6], flatten1, [1, 2, 3]));
+    console.log();
+
+    console.log('Reduce Right function (applies the function form right to left)');
+    const reduceRight = (xs, fn, memo) => reduce(reverse(xs), fn, memo);
+    const flatten3 = (memo, x) => memo.concat(x);
+    console.log('Output', reduceRight([
+      [0, 1],
+      [2, 3],
+      [4, 5]
+    ], flatten3, []));
+    console.log();
+
+    console.log('Partially apply a function by filling in any number of its arguments');
+    const partial = (fn, ...args) => (...newArgs) => fn(...args, ...newArgs);
+
+    const add = (x, y) => x + y;
+    const add5to = partial(add, 5);
+    console.log('Output', add5to(10));
+    console.log();
+
+    console.log('Convert function that takes an array to one that takes multiple arguments.');
+    const spreadArg = (fn) => (...args) => fn(args)
+    const add2 = spreadArg(([x, ...xs]) => def(x) ? parseInt(x + add2(...xs)) : [])
+    console.log('Output', add2(1, 2, 3, 4, 5));
+    console.log();
+
+    console.log('Reverse function argument order');
+    const reverseArgs = (fn) => (...args) => fn(...reverse(args));
+    const divide = (x, y) => x / y;
+    console.log('Output', divide(100, 10));
+    const reverseDivide = reverseArgs(divide);
+    console.log('Output', reverseDivide(100, 10));
+    console.log();
+
+    console.log('Pluck Function (Extract property value from array)');
+    const pluck = (key, object) => object[key];
+    const product = {
+      price: 15
+    };
+    console.log('Output', pluck('price', product));
+    const products = [{
+        price: 10
+      },
+      {
+        price: 5
+      },
+      {
+        price: 1
+      }
+    ];
+    const getPrices = partial(pluck, 'price')
+    console.log('Output', products.map(getPrices));
+    console.log();
+
+    console.log('Flow function (Each function consumes the return value of the function that came before)');
+    const flow = (...args) => init => reduce(args, (memo, fn) => fn(memo), init);
+    const getPrice = partial(pluck, 'price');
+    const discount = x => x * 0.9;
+    const tax = x => x + (x * 0.075);
+    const getFinalPrice = flow(getPrice, discount, tax);
+    console.log('Output', products.map(getFinalPrice));
+    console.log();
+
+    console.log(
+      'Compose function (Same as flow, but arguments are applied in the reverse order. Compose matches up more naturally with how functions are written.)'
+    );
+    const compose = (...args) => flow(...reverse(args));
+    const getFinalPrice1 = compose(tax, discount, getPrice);
+    console.log('Output', products.map(getFinalPrice1));
+    console.log();
+
+    console.log('Smallest number in an array');
+    const min = ([x, ...xs], result = Infinity) => def(x) ? x < result ? min(xs, x) : result : result;
+    console.log(min(array));
+    console.log();
+
+    console.log('Largest number in an array');
+    const max = ([x, ...xs], result = -Infinity) => def(x) ? x > result ? max(xs, x) : max(xs, result) : result;
+    console.log('Output', max(array));
+    console.log();
+
+    console.log('Factorial');
+    const factorial = (x, acum = 1) => x ? factorial(x - 1, x * acum) : acum;
+    console.log('Output', factorial(5));
+    console.log();
+
+    console.log('Fibonacci Series');
+    const fib = x => x > 2 ? fib(x - 1) + fib(x - 2) : 1;
+    console.log('Output', fib(15));
+    console.log();
+
+    console.log('Quicksort function');
+    const quicksort = (xs) => length(xs) ?
+      flatten([
+        quicksort(filter(tail(xs), x => x <= head(xs))),
+        head(xs),
+        quicksort(filter(tail(xs), x => x > head(xs)))
+      ]) : [];
+    const array4 = [6, 5, 4, 3, 2, 1];
+    console.log('Input', array4);
+    console.log('Output', quicksort(array4));
+    console.log();
+
+    const quicksortPartition = (array) => {
+      if (!length(array)) return []
+      const [less, more] = partition(tail(array), x => x < head(array))
+      return flatten([quicksortPartition(less), head(array), quicksortPartition(more)])
+    }
+    console.log('Input', array4);
+    console.log('Output', quicksortPartition(array4));
+    console.log();
+
+    console.log('Every function using reduction');
+    const reduceReduction = ([x, ...xs], f, memo, i = 0) => def(x) ?
+      reduceReduction(xs, f, f(memo, x, i), i + 1) : memo;
+
+    const reverseReduction = xs => reduceReduction(xs, (memo, x) => [x, ...memo], []);
+
+    const lengthReduction = xs => reduceReduction(xs, (memo, x) => memo + 1, 0);
+
+    const mapReduction = (xs, fn) => reduceReduction(xs, (memo, x) => [...memo, fn(x)], []);
+
+    const filterReduction = (xs, fn) => reduceReduction(xs, (memo, x) => fn(x) ? [...memo, x] : [...memo], []);
+
+    const rejectReduction = (xs, fn) => reduceReduction(xs, (memo, x) => fn(x) ? [...memo] : [...memo, x], []);
+
+    const firstReduction = (xs, n) => reduceReduction(xs, (memo, x, i) => i < n ? [...memo, x] : [...memo], []);
+
+    const lastReduction = (xs, n) => reduceReduction(xs, (memo, x, i) => i >= (length(xs) - n) ? [...memo, x] : [...
+      memo
+    ], []);
+
+    const mergeReduction = spreadArg(xs => reduceReduction(xs, (memo, x) => [...memo, ...x], []));
+
+    const flattenReduction = xs => reduceReduction(xs, (memo, x) => x ?
+      isArray(x) ? [...memo, ...flattenReduction(x)] : [...memo, x] : [], []);
+
+    const addReduction = spreadArg(([x, ...xs]) => reduceReduction(xs, (memo, y) => memo + y, x));
+
+    const divideReduction = spreadArg(([x, ...xs]) => reduceReduction(xs, (memo, y) => memo / y, x));
+
+    const multiplyReduction = spreadArg(([x, ...xs]) => reduceReduction(xs, (memo, y) => memo * y, x));
+
+    console.log('Reverse', reverseReduction([1, 2, 3])); // [3,2,1]
+    console.log('Length of array - ', lengthReduction([1, 2, 3])); // 3
+    console.log('Map Function', mapReduction([1, 2, 3], double)); // [2,3,4]
+    console.log('Filter function', filterReduction([1, 2, 3, 4], even)); // [2,4]
+    console.log('Reject function', rejectReduction([1, 2, 3, 4], even)); // [1,3]
+    console.log('First three elements of an array', firstReduction([1, 2, 3, 4], 3)); // [1,2,3]
+    console.log('Last two elements of an arary', lastReduction([1, 2, 3, 4], 2)); // [3,4]
+    console.log('Merge two arrays', mergeReduction([1, 2, 3], [4, 5, 6])); // [1,2,3,4,5,6]
+    console.log('Flatten inner arrays', flattenReduction([1, [2, 3, [4, [5, [
+      [6]
+    ]]]]])); // [1,2,3,4,5,6]
+    console.log('Add the array elements', addReduction(1, 2, 3, 4, 5)); // 15
+    console.log('Multiply the array elements', multiplyReduction(2, 5, 10)); // 100
+    console.log('Divide the array elements', divideReduction(100, 2, 5)); // 10
+  </script>
+</body>
+
+</html>
